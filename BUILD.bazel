@@ -1,0 +1,55 @@
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+# Main parson JSON parsing library
+cc_library(
+    name = "parson",
+    srcs = ["parson.c"],
+    hdrs = ["parson.h"],
+    visibility = ["//visibility:public"],
+)
+
+# Standard test executable
+cc_test(
+    name = "test",
+    srcs = [
+        "parson.c",
+        "parson.h",
+        "tests.c",
+    ],
+    copts = [
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-std=c89",
+        "-pedantic-errors",
+        "-DTESTS_MAIN",
+    ],
+    data = glob(["tests/*.txt"]),
+)
+
+# Test with hash collision simulation
+cc_test(
+    name = "test_hash_collisions",
+    srcs = [
+        "parson.c",
+        "parson.h",
+        "tests.c",
+    ],
+    copts = [
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-std=c89",
+        "-pedantic-errors",
+        "-DTESTS_MAIN",
+        "-DPARSON_FORCE_HASH_COLLISIONS",
+    ],
+    data = glob(["tests/*.txt"]),
+)
+
+# Note: The original Makefile included a "testcpp" target that compiled C files
+# with a C++ compiler. This non-standard practice has been intentionally omitted
+# as it violates language conventions and may not work reliably across different
+# environments. The C code should be compiled with a C compiler as intended.

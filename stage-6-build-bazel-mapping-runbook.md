@@ -24,6 +24,7 @@ The bazel mapping runbook maintenance captures new knowledge about how to conver
 * Focus on a single, specific build system to Bazel mapping concept that accomplishes one logical purpose (e.g., mapping library targets, configuring compiler flags, or defining test executables)
 * Avoid combining multiple logically distinct mapping concepts into a single pattern, even if they commonly appear together in the same build construct
 * Use generic, project-agnostic source code examples that exemplify the pattern rather than including project-specific names, paths, or configuration details
+* Use placeholder version numbers (e.g., "X.Y.Z") for bazel_dep dependency versions instead of specific version numbers
 * Ensure proposed bazel mapping patterns can be validated and applied consistently across different projects
 
 ### Bazel Mapping Pattern Contents

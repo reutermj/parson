@@ -30,7 +30,7 @@
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#include "parson.h"
+#include "include/parson.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -95,6 +95,12 @@ static void failing_free(void *ptr);
 
 static char * read_file(const char * filename);
 const char* get_file_path(const char *filename);
+
+/* Helper function to get temporary directory for Bazel compatibility */
+static const char* get_temp_dir(void) {
+    const char *tmpdir = getenv("TEST_TMPDIR");
+    return tmpdir ? tmpdir : ".";
+}
 
 static int g_tests_passed;
 static int g_tests_failed;
@@ -547,16 +553,20 @@ void test_suite_7(void) {
 
 void test_suite_8(void) {
     const char *filename = "test_2.txt";
-    const char *temp_filename = "test_2_serialized.txt";
+    char temp_path[512];
+    const char *tmpdir = get_temp_dir();
     JSON_Value *a = NULL;
     JSON_Value *b = NULL;
     char *buf = NULL;
     size_t serialization_size = 0;
+    
+    snprintf(temp_path, sizeof(temp_path), "%s/test_2_serialized.txt", tmpdir);
+    
     a = json_parse_file(get_file_path(filename));
-    TEST(json_serialize_to_file(a, get_file_path(temp_filename)) == JSONSuccess);
-    b = json_parse_file(get_file_path(temp_filename));
+    TEST(json_serialize_to_file(a, temp_path) == JSONSuccess);
+    b = json_parse_file(temp_path);
     TEST(json_value_equals(a, b));
-    remove(temp_filename);
+    remove(temp_path);
     serialization_size = json_serialization_size(a);
     buf = json_serialize_to_string(a);
     TEST((strlen(buf)+1) == serialization_size);
@@ -564,17 +574,21 @@ void test_suite_8(void) {
 
 void test_suite_9(void) {
     const char *filename = "test_2_pretty.txt";
-    const char *temp_filename = "test_2_serialized_pretty.txt";
+    char temp_path[512];
+    const char *tmpdir = get_temp_dir();
     char *file_contents = NULL;
     char *serialized = NULL;
     JSON_Value *a = NULL;
     JSON_Value *b = NULL;
     size_t serialization_size = 0;
+    
+    snprintf(temp_path, sizeof(temp_path), "%s/test_2_serialized_pretty.txt", tmpdir);
+    
     a = json_parse_file(get_file_path(filename));
-    TEST(json_serialize_to_file_pretty(a, get_file_path(temp_filename)) == JSONSuccess);
-    b = json_parse_file(get_file_path(temp_filename));
+    TEST(json_serialize_to_file_pretty(a, temp_path) == JSONSuccess);
+    b = json_parse_file(temp_path);
     TEST(json_value_equals(a, b));
-    remove(temp_filename);
+    remove(temp_path);
     serialization_size = json_serialization_size_pretty(a);
     serialized = json_serialize_to_string_pretty(a);
     TEST((strlen(serialized)+1) == serialization_size);
@@ -798,15 +812,21 @@ void print_commits_info(const char *username, const char *repo) {
 
 void persistence_example(void) {
     JSON_Value *schema = json_parse_string("{\"name\":\"\"}");
-    JSON_Value *user_data = json_parse_file(get_file_path("user_data.json"));
+    char user_data_path[512];
+    const char *tmpdir = get_temp_dir();
+    JSON_Value *user_data = NULL;
     char buf[256];
     const char *name = NULL;
+    
+    snprintf(user_data_path, sizeof(user_data_path), "%s/user_data.json", tmpdir);
+    user_data = json_parse_file(user_data_path);
+    
     if (user_data == NULL || json_validate(schema, user_data) != JSONSuccess) {
         puts("Enter your name:");
         scanf("%s", buf);
         user_data = json_value_init_object();
         json_object_set_string(json_object(user_data), "name", buf);
-        json_serialize_to_file(user_data, "user_data.json");
+        json_serialize_to_file(user_data, user_data_path);
     }
     name = json_object_get_string(json_object(user_data), "name");
     printf("Hello, %s.", name);

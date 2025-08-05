@@ -18,10 +18,13 @@ This document provides a complete analysis of `parson.h` build-relevant characte
 - **Path to Source File**: parson.h
 - **Line Number in Source File**: 26, 274
 - **Build Requirement**: Standard C/C++ compilation, no special build flags required
-- **Bazel Mapping Description**: 
+- **Bazel Mapping Description**: Header guards are a source code feature that requires no special Bazel configuration. Bazel's cc_library rule handles header compilation correctly with standard include guards.
 - **Bazel Code Snippet**:
-- **Output Bazel File**:
-- **References**: [PROPOSED-SAP-INCLUDE-001]
+```starlark
+# No specific Bazel code needed - header guards handled automatically
+```
+- **Output Bazel File**: N/A
+- **References**: [PROPOSED-SAP-INCLUDE-001], [TODO]
 
 ### [SA-INCLUDE-002] C++ Compatibility Extern Block
 - **Description**: The header provides C++ compatibility through extern "C" blocks, enabling the C library to be used from C++ code without name mangling issues.
@@ -41,10 +44,13 @@ extern "C"
 - **Path to Source File**: parson.h
 - **Line Number in Source File**: 29-32, 270-272
 - **Build Requirement**: Enables compilation in both C and C++ contexts, no special build flags required
-- **Bazel Mapping Description**: 
+- **Bazel Mapping Description**: C++ compatibility extern blocks are handled automatically by Bazel when the library is consumed by C++ targets. No special configuration needed in the cc_library rule.
 - **Bazel Code Snippet**:
-- **Output Bazel File**:
-- **References**: [PROPOSED-SAP-INCLUDE-002]
+```starlark
+# No specific Bazel code needed - extern "C" handled automatically
+```
+- **Output Bazel File**: N/A
+- **References**: [PROPOSED-SAP-INCLUDE-002], [TODO]
 
 ## Standard Library Dependencies
 
@@ -59,10 +65,13 @@ extern "C"
 - **Path to Source File**: parson.h
 - **Line Number in Source File**: 41
 - **Build Requirement**: Standard C library headers must be available in the compilation environment
-- **Bazel Mapping Description**: 
+- **Bazel Mapping Description**: Standard C library headers like stddef.h are automatically available in Bazel C/C++ compilation environment. No explicit dependency declaration required.
 - **Bazel Code Snippet**:
-- **Output Bazel File**:
-- **References**: [PROPOSED-SAP-DEPS-003]
+```starlark
+# No specific Bazel code needed - standard headers automatically available
+```
+- **Output Bazel File**: N/A
+- **References**: [PROPOSED-SAP-DEPS-003], [TODO]
 
 ## Root Directory Header Location
 
@@ -81,10 +90,19 @@ extern "C"
 - **Path to Source File**: parson.h
 - **Line Number in Source File**: 1 (entire file location)
 - **Build Requirement**: Build system must handle root directory header access appropriately. Bazel may require special configuration or header relocation to follow Bazel idioms for proper dependency management
-- **Bazel Mapping Description**: 
+- **Bazel Mapping Description**: Bazel does not allow public headers in the root directory. The public header must be moved to a subdirectory (e.g., include/, public-headers/) and the cc_library rule must use the includes attribute to specify the header directory path for proper include resolution by external consumers.
 - **Bazel Code Snippet**:
-- **Output Bazel File**:
-- **References**: [PROPOSED-SAP-ROOTDIR-001]
+```starlark
+cc_library(
+    name = "parson",
+    srcs = ["parson.c"],
+    hdrs = ["include/parson.h"],  # Public header moved to include/ directory
+    includes = ["include"],        # Make include/ directory available to consumers
+    visibility = ["//visibility:public"],
+)
+```
+- **Output Bazel File**: BUILD.bazel
+- **References**: [PROPOSED-SAP-ROOTDIR-001], [TODO]
 
 ## Public API Interface
 
@@ -105,10 +123,18 @@ JSON_Value * json_parse_string(const char *string);
 - **Path to Source File**: parson.h
 - **Line Number in Source File**: 44-46, 89-94
 - **Build Requirement**: This header must be made available to any code that wants to use the parson library, requiring proper include path configuration
-- **Bazel Mapping Description**: 
+- **Bazel Mapping Description**: The public API header is exposed through the hdrs attribute of the cc_library rule and made available to consumers through visibility settings. Client code depends on this library target to access the API.
 - **Bazel Code Snippet**:
-- **Output Bazel File**:
-- **References**: [PROPOSED-SAP-API-001]
+```starlark
+cc_library(
+    name = "parson",
+    srcs = ["parson.c"],
+    hdrs = ["parson.h"],
+    visibility = ["//visibility:public"],
+)
+```
+- **Output Bazel File**: BUILD.bazel
+- **References**: [PROPOSED-SAP-API-001], [TODO]
 
 ## Version Information
 
@@ -126,7 +152,10 @@ JSON_Value * json_parse_string(const char *string);
 - **Path to Source File**: parson.h
 - **Line Number in Source File**: 35-39
 - **Build Requirement**: No special build requirements, these are compile-time constants
-- **Bazel Mapping Description**: 
+- **Bazel Mapping Description**: Version constants are embedded in the header file and require no special Bazel configuration. They are automatically available to any code that includes the header.
 - **Bazel Code Snippet**:
-- **Output Bazel File**:
-- **References**: [PROPOSED-SAP-VERSION-002]
+```starlark
+# No specific Bazel code needed - version constants embedded in header
+```
+- **Output Bazel File**: N/A
+- **References**: [PROPOSED-SAP-VERSION-002], [TODO]

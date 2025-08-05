@@ -1,0 +1,66 @@
+"""Bazel build file for parson JSON library."""
+
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+# Common compiler flags based on Makefile/CMake configurations
+COMMON_COPTS = [
+    "-Wall",
+    "-Wextra", 
+    "-std=c89",
+    "-pedantic-errors",
+]
+
+# Parson JSON library
+cc_library(
+    name = "parson",
+    srcs = ["parson.c"],
+    hdrs = ["include/parson.h"],
+    copts = COMMON_COPTS,
+    includes = ["include"],
+    linkopts = select({
+        "@platforms//os:linux": ["-lm"],
+        "@platforms//os:macos": ["-lm"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+)
+
+# Standard C test executable
+cc_test(
+    name = "parson_test", 
+    srcs = ["tests.c"],
+    copts = COMMON_COPTS + ["-O0", "-g"],
+    defines = ["TESTS_MAIN"],
+    deps = [":parson"],
+    data = glob(["tests/*.txt"]),
+)
+
+# C++ compatibility test
+cc_test(
+    name = "parson_test_cpp",
+    srcs = ["tests.c"],
+    copts = ["-Wall", "-Wextra", "-O0", "-g"],
+    defines = ["TESTS_MAIN"],
+    deps = [":parson"],
+    data = glob(["tests/*.txt"]),
+)
+
+# Hash collision test (from Makefile hash_collision target)
+cc_test(
+    name = "hash_collision_test",
+    srcs = ["tests.c"],
+    copts = COMMON_COPTS + ["-O0", "-g"],
+    defines = ["TESTS_MAIN", "PARSON_FORCE_HASH_COLLISIONS"],
+    deps = [":parson"],
+    data = glob(["tests/*.txt"]),
+)
+
+# Test suite (equivalent to Makefile "all" target)
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":parson_test",
+        ":parson_test_cpp", 
+        ":hash_collision_test",
+    ],
+)

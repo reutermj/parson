@@ -7,9 +7,10 @@ This document provides instructions for generating Bazel build files from mappin
 For every build system conversion project:
 1. Read the existing `bazel-generation-runbook.md` to understand patterns and approaches for generating Bazel files and handling common issues.
 2. Read all relevant `<file name>.build-assessment.md` to understand the required Bazel constructs and their configurations.
-3. Generate Bazel build files based on the mapping specifications.
-4. Test the generated Bazel build system to validate equivalent behavior.
-5. Action Log Maintenance: maintain detailed logs of all actions, expectations, outcomes, and interactions.
+3. Read all relevant `<file name>.source-assessment.md` to understand the required Bazel constructs and their configurations.
+4. Generate Bazel build files based on the mapping specifications.
+5. Test the generated Bazel build system to validate equivalent behavior.
+6. Action Log Maintenance: maintain detailed logs of all actions, expectations, outcomes, and interactions.
 
 ## Action Log (`bazel-generation-log.<project>.md`)
 

@@ -1,0 +1,84 @@
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+# Common compilation flags for C targets (based on Makefile)
+COMMON_COPTS = [
+    "-O0",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-std=c89",
+    "-pedantic-errors",
+]
+
+# Common compilation flags for C++ targets
+COMMON_CPP_COPTS = [
+    "-O0",
+    "-g",
+    "-Wall",
+    "-Wextra",
+]
+
+# Common defines for test targets
+COMMON_TEST_DEFINES = ["TESTS_MAIN"]
+
+# Main parson library
+cc_library(
+    name = "parson",
+    srcs = ["parson.c"],
+    hdrs = ["include/parson.h"],
+    copts = COMMON_COPTS,
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+
+# C test target
+cc_test(
+    name = "test",
+    srcs = [
+        "tests.c",
+        "parson.c",
+        "include/parson.h",
+    ],
+    copts = COMMON_COPTS,
+    defines = COMMON_TEST_DEFINES,
+    includes = ["include"],
+    data = glob(["tests/*.txt"]),
+)
+
+# C++ compatibility test target
+cc_test(
+    name = "testcpp",
+    srcs = [
+        "tests.c",
+        "parson.c",
+        "include/parson.h",
+    ],
+    copts = COMMON_CPP_COPTS + ["-x", "c++"],
+    defines = COMMON_TEST_DEFINES,
+    includes = ["include"],
+    data = glob(["tests/*.txt"]),
+)
+
+# Hash collision test target
+cc_test(
+    name = "test_hash_collisions",
+    srcs = [
+        "tests.c",
+        "parson.c",
+        "include/parson.h",
+    ],
+    copts = COMMON_COPTS,
+    defines = COMMON_TEST_DEFINES + ["PARSON_FORCE_HASH_COLLISIONS"],
+    includes = ["include"],
+    data = glob(["tests/*.txt"]),
+)
+
+# Test suite grouping all tests (equivalent to Makefile "all" target)
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":test",
+        ":testcpp",
+        ":test_hash_collisions",
+    ],
+)

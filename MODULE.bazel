@@ -1,0 +1,9 @@
+"""Parson JSON library Bazel module."""
+
+module(
+    name = "parson",
+    version = "1.5.3",
+)
+
+# C/C++ rules dependency
+bazel_dep(name = "rules_cc", version = "0.2.0")

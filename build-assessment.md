@@ -1,9 +1,9 @@
 # Build Assessment and Bazel Mapping
 
-Analyze the provided build script and produce a detailed assessment file named `<file name>.build-assessment.md` that maps each significant build construct to its Bazel equivalent. This is a mapping exercise, not a migration - focus on documenting relationships between the two build systems rather than producing a complete Bazel implementation. You are done when you have identified and mapped all significant build constructs, providing clear explanations of how each would be implemented in Bazel.
+Analyze the provided build script and produce a detailed assessment file named `<file name>.build-assessment.<project>.md` that maps each significant build construct to its Bazel equivalent. This is a mapping exercise, not a migration - focus on documenting relationships between the two build systems rather than producing a complete Bazel implementation. You are done when you have identified and mapped all significant build constructs, providing clear explanations of how each would be implemented in Bazel.
 
 ## Guidelines
-* Produce the assessment file with the name pattern `<file name>.build-assessment.md` and write the complete assessment analysis to that file
+* Produce the assessment file with the name pattern `<file name>.build-assessment.<project>.md` and write the complete assessment analysis to that file
 * Analyze each logical build step/target by understanding what the build system accomplishes, how it accomplishes it, and explaining how Bazel would achieve the same goals through its equivalent constructs
 * Map each build construct to its functional Bazel equivalent, ensuring the mapping accomplishes the same build goals
 * Separate each assessment point in the Contents section with a markdown horizontal rule (three hyphens: ---) for visual clarity
